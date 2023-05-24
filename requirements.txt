@@ -1,0 +1,9 @@
+langchain
+llama-index
+openai
+pandas
+tiktoken
+pypdf4
+python-dotenv
+chromadb
+pdfplumber

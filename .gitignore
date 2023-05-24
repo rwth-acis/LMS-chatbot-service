@@ -1,0 +1,8 @@
+#ignore all files in the following directories
+env/*  
+.venv/*
+.env/*
+src/data/*
+
+#ignroe all ... files
+.env
