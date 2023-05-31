@@ -1,5 +1,5 @@
 langchain
-llama-index
+llama-index==0.6.15
 openai
 pandas
 tiktoken
