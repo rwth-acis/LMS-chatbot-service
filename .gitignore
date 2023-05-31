@@ -2,7 +2,7 @@
 env/*  
 .venv/*
 .env/*
-src/data/*
-
+src/*
+data/
 #ignroe all ... files
 .env
