@@ -7,3 +7,7 @@ pypdf4
 python-dotenv
 chromadb
 pdfplumber
+pypdf
+dotenv
+pymongo
+weaviate-client
