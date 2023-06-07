@@ -45,7 +45,7 @@ if __name__ == "__main__":
         source = response["source_documents"]
         chat_history.append(HumanMessage(content=question))
         chat_history.append(AIMessage(content=answer))
-
+ 
         # Display answer
         print("\n\nSources:\n")
         for document in source:

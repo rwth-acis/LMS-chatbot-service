@@ -3,7 +3,7 @@ import os
 import logging
 import sys
 
-from langchain import OpenAI
+from langchain.chat_models import ChatOpenAI
 from llama_index import SimpleDirectoryReader, LLMPredictor, ServiceContext, GPTVectorStoreIndex 
 from llama_index.response.pprint_utils import pprint_response
 from llama_index.indices.knowledge_graph.base import GPTKnowledgeGraphIndex
@@ -19,7 +19,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 # define LLM
-llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name="gpt-3.5-turbo"))
+llm_predictor = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"))
 service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 
 # load data and build index
