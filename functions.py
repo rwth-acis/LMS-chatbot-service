@@ -4,7 +4,7 @@ import weaviate
 
 from pypdf import PdfReader
 from llama_index import SimpleDirectoryReader, LLMPredictor, ServiceContext, GPTVectorStoreIndex 
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
@@ -39,7 +39,7 @@ def extract_text_from_pdfs_in_folder(folder_path, header_lines):
 # text list is an array can't split into chunks
 # splits text into chunks
 def get_text_chunks(text):
-    text_splitter = CharacterTextSplitter(
+    text_splitter = RecursiveCharacterTextSplitter(
         separator="\n",
         chunk_size=1000,
         chunk_overlap=200,
