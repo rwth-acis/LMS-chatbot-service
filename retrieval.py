@@ -30,10 +30,12 @@ MyOpenAI = OpenAI(temperature=0.2, openai_api_key=os.getenv("OPENAI_API_KEY"))
 qa = ChatVectorDBChain.from_llm(MyOpenAI, vectorstore)
 chat_history=[]
 
-while True:
-    query = input("")
-    result = qa({"question":query, "chat_history":chat_history})
-    print(result["answer"])
-    chat_history.append([query, result["answer"]])
+print(client.is_ready())
+
+# while True:
+#     query = input("")
+#     result = qa({"question":query, "chat_history":chat_history})
+#     print(result["answer"])
+#     chat_history.append([query, result["answer"]])
 
     
