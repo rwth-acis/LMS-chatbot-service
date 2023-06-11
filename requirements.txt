@@ -11,3 +11,5 @@ pypdf
 dotenv
 pymongo
 weaviate-client
+pinecone-client[grpc]
+datasets
