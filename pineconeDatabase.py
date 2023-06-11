@@ -1,12 +1,13 @@
 import logging, sys, os
 import pinecone
 from llama_index import SimpleDirectoryReader, LLMPredictor, ServiceContext, GPTVectorStoreIndex
-from llama_index.vector_stores import PineconeVectorStore
 from llama_index.storage.storage_context import StorageContext
 from langchain.chat_models import ChatOpenAI
-from langchain.chains.question_answering import load_qa_chain
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS, Pinecone, Chroma
+from langchain.chains import RetrievalQA
+from langchain.agents import initialize_agent, Tool, AgentType
+from langchain.tools import BaseTool
 from dotenv import load_dotenv
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -41,13 +42,17 @@ index = pinecone.GRPCIndex(index_name)
 slides = SimpleDirectoryReader('src/documents').load_data()
 docsearch = Pinecone.from_texts([t.text for t in slides], embed, index_name=index_name)
 
-#query = "What is DBIS?"
-#docs = docsearch.similarity_search(query, k=1)
-#print(docs)
-llm = ChatOpenAI(temperature=0.2, openai_api_key=os.getenv("OPENAI_API_KEY"))
-chain = load_qa_chain(llm, chain_type="stuff")
+llm = ChatOpenAI(temperature=0.3, openai_api_key=os.getenv("OPENAI_API_KEY"))
 
-query = "What is transactionmanagement?"
-docs = docsearch.similarity_search(query, k=1)
-answer = chain.run(input_documents=docs, question=query)
-print(answer)
+retriever_func = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=docsearch.as_retriever())
+
+tool = [
+    Tool(
+        name="dbis_slides",
+        func=retriever_func.run,
+        description="useful for when you need to answer a question about the lecture Databases and Information Systems. Input should be a question about the lecture.")
+]
+agent=initialize_agent(tool, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+
+
+print(agent.run("What is DBIS?"))
