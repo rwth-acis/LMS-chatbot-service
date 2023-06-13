@@ -7,7 +7,6 @@ from langchain.chat_models import ChatOpenAI
 from llama_index import SimpleDirectoryReader, LLMPredictor, ServiceContext, GPTVectorStoreIndex 
 from llama_index.response.pprint_utils import pprint_response
 from llama_index.indices.knowledge_graph.base import GPTKnowledgeGraphIndex
-from langchain import OpenAI
 from IPython.display import Markdown, display
 from llama_index.tools import QueryEngineTool, ToolMetadata
 from llama_index.query_engine import SubQuestionQueryEngine
