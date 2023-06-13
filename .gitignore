@@ -7,3 +7,4 @@ data/
 __pycache__/
 #ignroe all ... files
 .env
+secrets.ini
