@@ -8,6 +8,8 @@ from langchain.vectorstores import FAISS, Pinecone, Chroma
 from langchain.chains import RetrievalQA
 from langchain.agents import initialize_agent, Tool, AgentType
 from langchain.tools import BaseTool
+from qwikidata.json_dump import WikidataJsonDump
+from qwikidata.entity import WikidataItem, WikidataProperty
 from dotenv import load_dotenv
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -53,6 +55,5 @@ tool = [
         description="useful for when you need to answer a question about the lecture Databases and Information Systems. Input should be a question about the lecture.")
 ]
 agent=initialize_agent(tool, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
-
 
 print(agent.run("What is DBIS?"))
