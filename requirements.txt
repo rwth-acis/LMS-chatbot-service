@@ -5,11 +5,9 @@ pandas
 tiktoken
 pypdf4
 python-dotenv
-chromadb
-pdfplumber
-pypdf
-dotenv
+python-dotenv
 pymongo
 weaviate-client
 pinecone-client[grpc]
 datasets
+qwikidata
