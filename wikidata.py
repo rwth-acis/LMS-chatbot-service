@@ -7,13 +7,12 @@ from langchain import OpenAI, LLMChain
 from typing import List, Union
 from langchain.schema import AgentAction, AgentFinish
 import re
+from dotenv import load_dotenv
 
-config = configparser.ConfigParser()
-config.read('./secrets.ini')
-['./secrets.ini']
+load_dotenv()
 
-wikidata_user_agent_header = None if not config.has_section('WIKIDATA') else config['WIKIDATA']['WIKIDATA_USER_AGENT_HEADER']
-openai_api_key = config['OPENAI']['OPENAI_API_KEY']
+wikidata_user_agent_header = os.getenv("WIKIDATA_USER_AGENT_HEADER")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 def get_nested_value(o: dict, path: list) -> any:
     current = o
