@@ -53,6 +53,6 @@ tool = [
         description="useful for when you need to answer a question about the lecture Databases and Information Systems. Input should be a question about the lecture.")
 ]
 
-agent=initialize_agent(tool, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+# agent=initialize_agent(tool, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
 
 print(agent.run("What is transactionmanagement?"))

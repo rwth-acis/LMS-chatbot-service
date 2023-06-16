@@ -3,8 +3,8 @@ llama-index==0.6.15
 openai
 pandas
 tiktoken
+pypdf
 pypdf4
-python-dotenv
 python-dotenv
 pymongo
 weaviate-client
