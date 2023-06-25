@@ -15,44 +15,64 @@ logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 load_dotenv()
 
-# initialize vector database
-index_name = 'dbis-slides'
-pinecone.init(
-    api_key=os.getenv("PINECONE_API_KEY"),
-    environment="us-west4-gcp"
-)
-
-# initialize embedding model
-embed = OpenAIEmbeddings(
-    model = "text-embedding-ada-002",
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
-
-# create new index if not in index list
-if index_name not in pinecone.list_indexes():
-    pinecone.create_index(
-        name=index_name, 
-        metric="dotproduct",
-        dimension=1536
+def question_retrieval(input):
+    subquestion = []
+    for i in range(len(input)):
+        index = input[i].find('?')
+        if index == -1:
+            i+1
+        else:
+            subquestion.append(input[i])
+    return subquestion
+    
+def answer_retrieval(question):
+    # initialize vector database
+    index_name = 'dbis-slides'
+    pinecone.init(
+        api_key=os.getenv("PINECONE_API_KEY"),
+        environment="us-west4-gcp"
     )
 
-# connect to index
-index = pinecone.GRPCIndex(index_name)
+    # initialize embedding model
+    embed = OpenAIEmbeddings(
+        model = "text-embedding-ada-002",
+        openai_api_key=os.getenv("OPENAI_API_KEY")
+    )
 
-slides = SimpleDirectoryReader('src/documents').load_data()
-docsearch = Pinecone.from_texts([t.text for t in slides], embed, index_name=index_name)
+    # create new index if not in index list
+    if index_name not in pinecone.list_indexes():
+        pinecone.create_index(
+            name=index_name, 
+            metric="dotproduct",
+            dimension=1536
+        )
 
-llm = ChatOpenAI(temperature=0.3, openai_api_key=os.getenv("OPENAI_API_KEY"))
+    # connect to index
+    index = pinecone.GRPCIndex(index_name)
 
-retriever_func = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=docsearch.as_retriever())
+    slides = SimpleDirectoryReader('src/documents').load_data()
+    docsearch = Pinecone.from_texts([t.text for t in slides], embed, index_name=index_name)
 
-tool = [
-    Tool(
-        name="dbis_slides",
-        func=retriever_func.run,
-        description="useful for when you need to answer a question about the lecture Databases and Information Systems. Input should be a question about the lecture.")
-]
+    llm = ChatOpenAI(temperature=0.3, openai_api_key=os.getenv("OPENAI_API_KEY"))
 
-# agent=initialize_agent(tool, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+    retriever_func = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=docsearch.as_retriever())
 
-print(agent.run("What is transactionmanagement?"))
+    tool = [
+        Tool(
+            name="dbis_slides",
+            func=retriever_func.run,
+            description="useful for when you need to answer a question about the lecture Databases and Information Systems. Input should be a question about the lecture.")
+    ]
+
+    agent = initialize_agent(tool, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+
+    return agent.run(question)
+
+if __name__ =="__main__":
+    load_dotenv()
+    while True:
+        print()
+        input = input("Input:")
+        response = question_retrieval(input)
+        print(response)
+        
