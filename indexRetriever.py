@@ -1,8 +1,12 @@
 import logging, sys, os
 import pinecone
 from langchain.chat_models import ChatOpenAI
+from langchain import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.docstore.document import Document
+from langchain.chains.summarize import load_summarize_chain
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 
@@ -45,3 +49,14 @@ def question_answer(question, doc):
     chain = load_qa_chain(llm, chain_type="stuff")
     
     return chain.run(input_documents=doc, question=question)
+
+def summarization(text):
+    text_splitter = CharacterTextSplitter()
+    texts = text_splitter.split_text(text)
+    
+    docs = [Document(page_content=t) for t in texts]
+    
+    llm = OpenAI(temperature=0)
+    chain = load_summarize_chain(llm, chain_type="map_reduce")
+    summary = chain.run(docs)
+    return summary
