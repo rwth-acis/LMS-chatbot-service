@@ -2,8 +2,6 @@ from langchain.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import SimpleSequentialChain, SequentialChain
-import sys
-from dotenv import load_dotenv
 
 def fact_check(question, answer):
     llm = OpenAI(temperature=0.3)
@@ -31,13 +29,5 @@ def fact_check(question, answer):
 
     return overall_chain(dict)
 
-if __name__=="__main__":
-    load_dotenv()
-    while True:
-        print()
-        question = input("Question: ")
-        answer = input("Answer: ")
-        response = fact_check(question,answer)
-        print(response)
     
     
