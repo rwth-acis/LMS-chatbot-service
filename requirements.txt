@@ -7,7 +7,7 @@ pypdf
 pypdf4
 python-dotenv
 pymongo
-weaviate-client
 pinecone-client[grpc]
 datasets
 qwikidata
+Tensorflow
