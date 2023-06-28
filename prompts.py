@@ -2,8 +2,17 @@ from langchain.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import SimpleSequentialChain, SequentialChain
-from factchecker import fact_check
-from dotenv import load_dotenv
+
+def greeting(input):
+    llm = OpenAI(temperature=0)
+    prompt_template = "You are a tutor for the lecture databases and information systems at the RWTH Aachen University. The students greets you: {input}. Greet the student back as a tutor would do and start some small talk."
+    prompt=PromptTemplate(input_variables=["input"], template=prompt_template)
+    llm_chain = LLMChain(
+        llm=llm,
+        prompt=prompt,
+    )
+    return llm_chain.run(input)
+
 
 def split_prompt_question(input):
     llm = OpenAI(temperature=0)
