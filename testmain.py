@@ -2,54 +2,50 @@ from langchain.memory import MongoDBChatMessageHistory
 from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent, AgentOutputParser
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.tools import StructuredTool
+from langchain.callbacks import get_openai_callback
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
 from typing import List, Union
 from langchain.schema import AgentAction, AgentFinish, HumanMessage
 from prompts import split_prompt_question, greeting
-from indexRetriever import doc_retrieval, question_retrieval, question_answer, summarization
+from indexRetriever import doc_retrieval, question_retrieval, question_answer, summarization, test
 from factchecker import fact_check
-import re, os
+import re, os, logging, sys
 from dotenv import load_dotenv
 
+def answerQuestion(question):
+    question_split = split_prompt_question(question)
+    subquestion = question_retrieval(question_split)
+    subquestion_answer = ""
+    for i in range(len(subquestion)):
+        doc = doc_retrieval(subquestion[i])
+        answers = question_answer(subquestion[i], doc)
+        subquestion_answer += answers
+    # summarize answers
+    overall_answer = summarization(subquestion_answer)
+    response = fact_check(question, overall_answer)
+    return response
+
+
+
+
 if __name__=="__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
+    
     load_dotenv()
     tools = [
         Tool(
+            name="answerQuestion",
+            func=test,
+            description="call this to answer the user's question.",
+        ),
+        Tool(
             name="greet",
             func=greeting,
-            description="call this to greet the user",  
+            description="call this to greet the user.",  
         ),
-        Tool(
-            name="splitPrompt",
-            func=split_prompt_question,
-            description="call this to split prompt with multiple questions into a list of questions",
-        ),
-        Tool(
-            name="questionRetrieval",
-            func=question_retrieval,
-            description="call this to retrieve subquestions from a list of questions",
-        ),
-        Tool(
-            name="docRetrieval",
-            func=doc_retrieval,
-            description="call this to retrieve documents to answer the subquestions",
-        ),
-        StructuredTool.from_function(
-            name="questionAnswer",
-            func=question_answer,
-            description="call this to generate answers to the subquestions based on the retrieved documents from the docRetrieval tool",
-        ),
-        Tool(
-            name="factCheck",
-            func=fact_check,
-            description="call this to check the answers of the questions",  
-        ),
-        Tool(
-            name="summarization",
-            func=summarization,
-            description="call this to summarize the answers of the questions",
-        ),
+        
     ]
 
     # Set up the base template
@@ -57,28 +53,24 @@ if __name__=="__main__":
 
     {tools}
 
-    Use the following format for greetings:
-    Input: the input you must respond to
-    Output: the output you must respond with
+    Use the following format for the input:
 
-    Use the following format for questions:
-
-    Question: the input question you must answer. 
+    Greet: greet the user using the greeting tool
+    Input: the input you must answer. 
     Thought: you should always think about what to do
     Action: the action to take, should be one of [{tool_names}]
     Action Input: the input to the action
     Observation: the result of the action
-    ... (this Thought/Action/Action Input/Observation can repeat N times)
+    ... (this Thought/Action/Action Input/Observation can repeat 3 times)
     Thought: I now know the final answer
     Final Answer: the final answer to the original input question
-
     These were previous tasks you completed:
 
 
 
     Begin!
 
-    Question: {input}
+    Input: {input}
     {agent_scratchpad}"""
 
     # Set up a prompt template
@@ -145,6 +137,7 @@ if __name__=="__main__":
         stop=["\nObservation:"],
         allowed_tools=tool_names
     )
+    
     agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
 
     connection_string = "mongodb://localhost:27017"
@@ -155,9 +148,12 @@ if __name__=="__main__":
 
     while True:
         print()
-        questions = input("Question: ")
-        chat_history.add_user_message(questions)
-        answer = agent_executor.run(questions)
-        print(answer)
-        chat_history.add_ai_message(answer)
-        print(chat_history.messages)
+        with get_openai_callback() as cb:
+            input = input("you: ")
+            if input == "exit":
+                break
+            chat_history.add_user_message(input)
+            answer = agent_executor.run(input)
+            print(answer)
+            chat_history.add_ai_message(answer)
+        print(cb)
