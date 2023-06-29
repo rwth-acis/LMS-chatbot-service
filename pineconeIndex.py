@@ -45,10 +45,9 @@ storage_context = StorageContext.from_defaults(
     vector_store=PineconeVectorStore(pinecone.Index(index_name)),
 )
 
+#TODO add files manually
 DBIS_slides = SimpleDirectoryReader('src/documents').load_data()
 slides_index = GPTVectorStoreIndex.from_documents(
     DBIS_slides, 
     service_context=service_context, 
     storage_context=storage_context)
-
-print(slides_index)
