@@ -1,17 +1,19 @@
 from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import SimpleSequentialChain, SequentialChain
 
 def greeting(input):
-    llm = OpenAI(temperature=0)
+    llm = ChatOpenAI(temperature=0)
     prompt_template = "You are a tutor for the lecture databases and information systems at the RWTH Aachen University. The students greets you: {input}. Greet the student back as a tutor would do and start some small talk."
     prompt=PromptTemplate(input_variables=["input"], template=prompt_template)
     llm_chain = LLMChain(
         llm=llm,
         prompt=prompt,
     )
-    return llm_chain.run(input)
+    response = llm_chain.run(input)
+    return response
 
 
 def split_prompt_question(input):
@@ -42,3 +44,4 @@ def split_prompt_question(input):
     questions = question_chain.run(input)
     
     return questions.splitlines(True)
+
