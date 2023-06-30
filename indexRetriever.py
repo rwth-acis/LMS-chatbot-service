@@ -62,7 +62,7 @@ def summarization(text):
     summary = chain.run(docs)
     return summary
 
-def test(question):
+def answer_retriever(question):
     pinecone.init(
     api_key=os.getenv("PINECONE_API_KEY"),
     environment=os.getenv("PINECONE_ENVIRONMENT")
@@ -83,4 +83,4 @@ def test(question):
     retriever = vector_store.as_retriever()
     llm = ChatOpenAI(model_name="gpt-3.5-turbo")
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-    return qa(question)
+    return qa(question)["result"]
