@@ -4,6 +4,7 @@ env/*
 .env/*
 src/*
 data/
+trash/*
 __pycache__/
 #ignroe all ... files
 .env
