@@ -10,7 +10,7 @@ from langchain.memory.chat_memory import ChatMessageHistory
 from langchain.memory.chat_message_histories import MongoDBChatMessageHistory
 from indexRetriever import answer_retriever
 from prompts import greeting
-import os, uuid, ast
+import os, uuid, json, ast
 import pymongo
 from dotenv import load_dotenv
 from langchain.callbacks import get_openai_callback
@@ -76,8 +76,7 @@ if __name__ == "__main__":
                 message_history.add_ai_message(answer)
             except Exception as err:
                 print('Exception occured.', str(err))
-        cb = str(cb)
-        cb += "session_id: {session_id}"
-        cb_dict= ast.literal_eval(str(cb))
-        mycol.insert_one(cb_dict)
-        print(cb_dict)
+        dict = vars(cb)
+        dict['session_id'] = session_id
+        mycol.insert_one(dict)
+        print(dict)
