@@ -1,4 +1,4 @@
-# this script generates questions out of the inserted documents. 
+# this script generates questions out of the inserted documents. (currenty 102 question-answers)
 # It is not using the pinecone index since there is no possibility to retrieve all documents from the pinecone database.
 # The questions and answers are stored in a MongoDB database.
 # this will be especially used to question the students as a chatbot and test their knowledge.
@@ -39,10 +39,3 @@ def question_generator():
     for i in range(len(qa)):
         collection.insert_one(qa[i])
     return 
-
-if __name__ == "__main__":
-    load_dotenv()
-    with get_openai_callback() as cb:
-        print(question_generator())
-        print(cb)
-    
