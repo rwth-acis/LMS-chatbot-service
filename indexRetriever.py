@@ -1,3 +1,4 @@
+# functions to retrieve the documents and answer the questions
 import logging, sys, os
 import pinecone
 from langchain.chat_models import ChatOpenAI

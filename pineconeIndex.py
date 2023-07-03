@@ -1,4 +1,5 @@
-#used to initialize the pinecone index and upload the documents to the pinecone index
+# used to initialize the pinecone index and upload the documents to the pinecone index
+# the index is used to retrieve the documents and answer the questions
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
