@@ -10,7 +10,8 @@ from langchain.memory.chat_memory import ChatMessageHistory
 from langchain.memory.chat_message_histories import MongoDBChatMessageHistory
 from indexRetriever import answer_retriever
 from prompts import greeting
-import os, uuid
+import os, uuid, ast
+import pymongo
 from dotenv import load_dotenv
 from langchain.callbacks import get_openai_callback
 
@@ -33,7 +34,7 @@ def generate_agent(message_history):
         ),
     ]
 
-    prefix = """Have a conversation with a student of the lecture databases and informationssystems, answering the following questions as best you can. Only use the following tools:"""
+    prefix = """You are a tutor for the lecture databases and informationssystems. Have a conversation with a student of this lecture, answering the following questions as best you can. Only use the following tools:"""
     suffix = """Begin! Remember to answer in german.
 
     {chat_history}
@@ -57,7 +58,11 @@ def generate_agent(message_history):
 
 if __name__ == "__main__":
     load_dotenv()
-    message_history = set_mongodb(str(uuid.uuid4()))
+    session_id = str(uuid.uuid4())
+    message_history = set_mongodb(session_id)
+    myclient = pymongo.MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
+    mydb = myclient["chat_history"]
+    mycol = mydb["message_store"]
     while True:
         with get_openai_callback() as cb:
             user_input = input("Du: ")
@@ -71,4 +76,8 @@ if __name__ == "__main__":
                 message_history.add_ai_message(answer)
             except Exception as err:
                 print('Exception occured.', str(err))
-        print(cb)
+        cb = str(cb)
+        cb += "session_id: {session_id}"
+        cb_dict= ast.literal_eval(str(cb))
+        mycol.insert_one(cb_dict)
+        print(cb_dict)
