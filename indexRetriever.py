@@ -2,7 +2,7 @@ import logging, sys, os
 import pinecone
 from langchain.chat_models import ChatOpenAI
 from langchain import OpenAI
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA, QAGenerationChain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.text_splitter import CharacterTextSplitter
@@ -64,8 +64,8 @@ def summarization(text):
 
 def answer_retriever(question):
     pinecone.init(
-    api_key=os.getenv("PINECONE_API_KEY"),
-    environment=os.getenv("PINECONE_ENVIRONMENT")
+        api_key=os.getenv("PINECONE_API_KEY"),
+        environment=os.getenv("PINECONE_ENVIRONMENT")
     )
     
     index = pinecone.Index('dbis-slides')
@@ -84,3 +84,4 @@ def answer_retriever(question):
     llm = ChatOpenAI(model_name="gpt-3.5-turbo")
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
     return qa(question)["result"]
+
