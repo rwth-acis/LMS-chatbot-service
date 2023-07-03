@@ -33,7 +33,7 @@ def generate_agent(message_history):
         ),
     ]
 
-    prefix = """Have a conversation with a student of the lecture databases and informationssystems, answering the following questions as best you can. Only use the following tools:"""
+    prefix = """You are a tutor for the lecture databases and informationssystems. Have a conversation with a student of this lecture, answering the following questions as best you can. Only use the following tools:"""
     suffix = """Begin! Remember to answer in german.
 
     {chat_history}
