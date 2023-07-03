@@ -3,12 +3,12 @@ from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import SimpleSequentialChain, SequentialChain
 
-def fact_check(question, answer):
-    llm = OpenAI(temperature=0.3)
+def fact_check(answer):
+    llm = OpenAI(temperature=0)
 
-    dict = {"question": question, "answer": answer}
-    template = """Here is the question: {question} and the answer: {answer} to the question. Make a bullet point list of the assumptions in the answer.\n\n"""
-    prompt_template = PromptTemplate(input_variables=["question", "answer"], template=template)
+    dict = {"answer": answer}
+    template = """Here is the answer: {answer} to the question. Make a bullet point list of the assumptions in the answer.\n\n"""
+    prompt_template = PromptTemplate(input_variables=["answer"], template=template)
     assumptions_chain = LLMChain(llm=llm, prompt=prompt_template, output_key="assertions")
 
     template = """Here is a bullet point list of assertions:
@@ -17,13 +17,13 @@ def fact_check(question, answer):
     prompt_template = PromptTemplate(input_variables=["assertions"], template=template)
     fact_checker_chain = LLMChain(llm=llm, prompt=prompt_template, output_key="facts")
 
-    template = """In light of the above facts, how would you answer the question and explain your answer.""".format(question)
+    template = """In light of the above facts, how would you answer the question and explain your answer."""
     template = """{facts}\n""" + template
     prompt_template = PromptTemplate(input_variables=["facts"], template=template)
     answer_chain = LLMChain(llm=llm, prompt=prompt_template, output_key="output")
 
     overall_chain = SequentialChain(chains=[assumptions_chain, fact_checker_chain, answer_chain],
-                                    input_variables=["question","answer"],
+                                    input_variables=["answer"],
                                     output_variables=["assertions", "facts", "output"],
                                     verbose=True)
 
