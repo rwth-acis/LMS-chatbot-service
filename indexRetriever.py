@@ -3,7 +3,9 @@ import logging, sys, os
 import pinecone
 from langchain.chat_models import ChatOpenAI
 from langchain import OpenAI
-from langchain.chains import RetrievalQA, QAGenerationChain
+from langchain.memory import ConversationBufferMemory,ConversationBufferWindowMemory
+from langchain.prompts import PromptTemplate
+from langchain.chains import RetrievalQA, QAGenerationChain, LLMChain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.text_splitter import CharacterTextSplitter
@@ -31,7 +33,7 @@ def doc_retrieval(question):
     environment=os.getenv("PINECONE_ENVIRONMENT")
     )
     
-    index = pinecone.Index('dbis-slides')
+    index = pinecone.Index(os.getenv("INDEX_NAME"))
     
     # initialize embedding model
     embed = OpenAIEmbeddings(
@@ -69,7 +71,7 @@ def answer_retriever(question):
         environment=os.getenv("PINECONE_ENVIRONMENT")
     )
     
-    index = pinecone.Index('dbis-slides')
+    index = pinecone.Index(os.getenv("INDEX_NAME"))
     
     # initialize embedding model
     embed = OpenAIEmbeddings(
@@ -81,8 +83,28 @@ def answer_retriever(question):
     # connect to index
     vector_store = Pinecone(index, embed.embed_query, text_field)
 
+    prompt_template = """As a tutor for the lecture databases and informationssystems, your goal is to provide accurate and helpful infomration about the lecture. 
+    You should answer the user inquiries as best as possible based on the context and chat history provided and avoid making up answers. 
+    If you don't know the answer, simply state that you don'k know. Answer the question in german language.
+    
+    {context}
+
+    Question: {question}
+    """
+    TUTOR_PROMPT = PromptTemplate(
+        template=prompt_template, input_variables=["context", "question"]
+    )
+    
     retriever = vector_store.as_retriever()
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo")
-    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-    return qa(question)["result"]
+    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, max_tokens=512)
+    qa = RetrievalQA.from_chain_type(
+        llm=llm, 
+        chain_type="stuff", 
+        retriever=retriever, 
+        chain_type_kwargs={"prompt": TUTOR_PROMPT},
+        memory = ConversationBufferWindowMemory(k=10)
+    )
+    result = qa.run(question)
+    
+    return result
 
