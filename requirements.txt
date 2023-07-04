@@ -10,4 +10,3 @@ pymongo
 pinecone-client[grpc]
 datasets
 qwikidata
-Tensorflow
