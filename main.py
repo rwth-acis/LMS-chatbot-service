@@ -1,9 +1,9 @@
 from langchain.memory.chat_message_histories import MongoDBChatMessageHistory
-import os, uuid
-import pymongo
+from langchain.memory import ConversationBufferMemory
+import os, uuid, pymongo
 from dotenv import load_dotenv
 from langchain.callbacks import get_openai_callback
-from agents import generate_agent007, generate_agent008
+from agents import generate_agent007, generate_agent009, generate_testagent
 
 load_dotenv()
 # Set up the message history
@@ -21,6 +21,8 @@ if __name__ == "__main__":
     myclient = pymongo.MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
     mydb = myclient["chat_history"]
     mycol = mydb["message_store"]
+    agent = generate_agent007(message_history)
+    print("Welcome to the DBIS Chatbot. You can ask me anything related to the lecture. Type 'exit' to quit the service.")
     while True:
         with get_openai_callback() as cb:
             user_input = input("Du: ")
@@ -28,13 +30,12 @@ if __name__ == "__main__":
                 break
             message_history.add_user_message(user_input)
             try: 
-                agent = generate_agent007(message_history)
                 answer = agent.run(user_input)
                 print(answer)
                 message_history.add_ai_message(answer)
             except Exception as err:
                 print('Exception occured.', str(err))
         dict = vars(cb)
-        dict['session_id'] = session_id
+        dict['Session_id'] = session_id
         mycol.insert_one(dict)
         print(cb)
