@@ -47,8 +47,8 @@ storage_context = StorageContext.from_defaults(
 )
 
 #TODO add files manually
-DBIS_slides = SimpleDirectoryReader('src/documents').load_data()
+slides = SimpleDirectoryReader(os.getenv("SELECTED_FILES")).load_data()
 slides_index = GPTVectorStoreIndex.from_documents(
-    DBIS_slides, 
+    slides, 
     service_context=service_context, 
     storage_context=storage_context)
