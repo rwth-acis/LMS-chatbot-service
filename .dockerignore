@@ -1,0 +1,9 @@
+.git/
+tests/*
+trash/*
+env/*
+src/data/*
+src/mediaPsy/*
+src/sorted_documents/*
+.env
+!requirements.txt

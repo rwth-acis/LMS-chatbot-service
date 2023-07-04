@@ -1,0 +1,18 @@
+version: '1'
+
+services: 
+  lms-mongodb:
+    container_name: "lms-mongodb"
+    image: "mongo:latest"
+    ports:
+      - "27017:27017"
+    
+  lms-chatbot:
+    container_name: "lms-chatbot"
+    image: "lmschatbotservice:test2"
+    ports:
+      - "5005:5005"
+    depends_on:
+      - lms-mongodb
+    links: 
+      - lms-mongodb
