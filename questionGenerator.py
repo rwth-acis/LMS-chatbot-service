@@ -21,13 +21,13 @@ def question_generator():
     client = MongoClient(os.getenv('MONGO_CONNECTION_STRING'))
 
     # select database
-    db = client["Questions"]
+    db = client["DBISquestions"]
 
     # select collection
     collection = db["questionAnswer"]
     
     # get all documents from the src/documents folder
-    slides = SimpleDirectoryReader('src/documents').load_data()
+    slides = SimpleDirectoryReader(os.getenv("SELECTED_FILES")).load_data()
     
     # retrieve texts from the documents
     text = ""
