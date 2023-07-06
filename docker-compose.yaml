@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  lms-mongodb:
+    container_name: lms-mongodb
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+
+  lms-chatbot:
+    container_name: lms-chatbot
+    image: registry.tech4comp.dbis.rwth-aachen.de/tech4comp/lmschatbot:bayin
+    environment:
+      - MONGO_CONNECTION_STRING=lms-mongodb:27017
+    ports:
+      - "5000:5000"
+    depends_on:
+      - lms-mongodb
+    links:
+      - lms-mongodb
