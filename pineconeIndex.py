@@ -4,8 +4,9 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
-from llama_index import SimpleDirectoryReader, GPTVectorStoreIndex, LLMPredictor, ServiceContext, StorageContext
+from llama_index import SimpleDirectoryReader, GPTVectorStoreIndex, LLMPredictor, ServiceContext, StorageContext, download_loader
 from llama_index.vector_stores import PineconeVectorStore
+from pathlib import Path
 import pinecone
 import openai
 import logging
@@ -26,7 +27,7 @@ embed = OpenAIEmbeddings(
     model="text-embedding-ada-002", 
     openai_api_key=os.getenv("OPENAI_API_KEY"))
 
-index_name = "dbis-slides"
+index_name = os.getenv("PINECONE_INDEX_NAME")
 
 pinecone.init(
     api_key=os.getenv("PINECONE_API_KEY"),
@@ -48,7 +49,14 @@ storage_context = StorageContext.from_defaults(
 
 #TODO add files manually
 slides = SimpleDirectoryReader(os.getenv("SELECTED_FILES")).load_data()
+exercises = SimpleDirectoryReader(os.getenv("SELECTED_EXERCISES")).load_data()
+
 slides_index = GPTVectorStoreIndex.from_documents(
     slides, 
     service_context=service_context, 
+    storage_context=storage_context)
+
+exercise_index = GPTVectorStoreIndex.from_documents(
+    exercises,
+    service_context=service_context,
     storage_context=storage_context)
