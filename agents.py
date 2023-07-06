@@ -68,10 +68,8 @@ def generate_agent007(message_history):
         )
     ]
 
-    memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=message_history)
-
     agent = QuestionAgent()
-    agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=memory)
+    agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
     return agent_executor
 
 def generate_agent009():
