@@ -5,7 +5,10 @@ env/*
 src/*
 data/
 trash/*
+kubernetes/*
+templates/*
 __pycache__/
 #ignroe all ... files
 .env
 secrets.ini
+kompose.exe
