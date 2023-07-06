@@ -33,7 +33,7 @@ def doc_retrieval(question):
     environment=os.getenv("PINECONE_ENVIRONMENT")
     )
     
-    index = pinecone.Index(os.getenv("INDEX_NAME"))
+    index = pinecone.Index(os.getenv("PINECONE_INDEX_NAME"))
     
     # initialize embedding model
     embed = OpenAIEmbeddings(
@@ -71,7 +71,7 @@ def answer_retriever(question):
         environment=os.getenv("PINECONE_ENVIRONMENT")
     )
     
-    index = pinecone.Index(os.getenv("INDEX_NAME"))
+    index = pinecone.Index(os.getenv("PINECONE_INDEX_NAME"))
     
     # initialize embedding model
     embed = OpenAIEmbeddings(
@@ -82,7 +82,7 @@ def answer_retriever(question):
     text_field = "text"
     # connect to index
     vector_store = Pinecone(index, embed.embed_query, text_field)
-
+    
     prompt_template = """As a tutor for the lecture databases and informationssystems, your goal is to provide accurate and helpful infomration about the lecture. 
     You should answer the user inquiries as best as possible based on the context and chat history provided and avoid making up answers. 
     If you don't know the answer, simply state that you don'k know. Answer the question in german language.
@@ -96,15 +96,17 @@ def answer_retriever(question):
     )
     
     retriever = vector_store.as_retriever()
+
+    
     llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, max_tokens=512)
     qa = RetrievalQA.from_chain_type(
         llm=llm, 
         chain_type="stuff", 
         retriever=retriever, 
         chain_type_kwargs={"prompt": TUTOR_PROMPT},
-        memory = ConversationBufferWindowMemory(k=10)
     )
-    result = qa.run(question)
     
+    result = qa.run(question)
+
     return result
 
