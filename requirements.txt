@@ -10,3 +10,5 @@ pymongo
 pinecone-client[grpc]
 datasets
 qwikidata
+flask
+flask-cors
