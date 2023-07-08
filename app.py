@@ -42,7 +42,7 @@ def generateQuestions():
 
 @app.route("/chat", methods=['POST'])
 def chat():
-    user_input = request.json.get('message')
+    user_input = request.json.get('msg')
     session_id = str(uuid.uuid4())
     message_history = set_mongodb(session_id)
         
