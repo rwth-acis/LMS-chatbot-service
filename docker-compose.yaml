@@ -9,7 +9,7 @@ services:
 
   lms-chatbot:
     container_name: lms-chatbot
-    image: registry.tech4comp.dbis.rwth-aachen.de/tech4comp/lmschatbot:bayin
+    image: registry.tech4comp.dbis.rwth-aachen.de/tech4comp/lmschatbot:ba-yin-v1
     environment:
       - MONGO_CONNECTION_STRING=lms-mongodb:27017
     ports:
