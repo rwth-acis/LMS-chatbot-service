@@ -85,10 +85,8 @@ def generate_agent007(memory):
     {{{{input}}}}"""
 
     llm = ChatOpenAI(temperature=0, model="gpt-4")
-    #llm_chain = LLMChain(llm=llm, memory=memory)
     agent = ConversationalChatAgent.from_llm_and_tools(llm=llm, system_message=prefix, human_message=suffix, tools=tools, verbose=True)
     agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=memory, handle_parsing_errors=True)
-    
-    #agent = initialize_agent(tools, llm=llm_chain, agent=agent_chain, memory=memory, verbose=True)
+
     return agent_chain
 
