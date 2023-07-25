@@ -54,9 +54,6 @@ def chat():
         try: 
             agent = generate_agent007(memory)
             answer = agent.run(user_input)
-            #answer = conversational_answer_retriever(memory, user_input)
-            # message_history.add_user_message(user_input)
-            # message_history.add_ai_message(answer)
             dict_cb = vars(cb)
             dict_cb['Session_id'] = session_id
             mycol.insert_one(dict_cb)
