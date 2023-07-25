@@ -2,8 +2,10 @@ datasets
 Flask
 Flask-Cors
 googletrans==3.1.0a0
+ipython
 langchain
 llama-index
+nbconvert
 openai
 pandas
 pinecone-client[grpc]
