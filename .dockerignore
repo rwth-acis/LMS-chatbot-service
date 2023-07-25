@@ -2,6 +2,8 @@
 tests
 trash
 env
+kubernetes
+bot
 src/data
 src/mediaPsy
 src/sorted_documents
