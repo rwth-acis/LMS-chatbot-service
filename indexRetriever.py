@@ -13,6 +13,7 @@ from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
+from dotenv import load_dotenv
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -28,6 +29,7 @@ def question_retrieval(input):
     return subquestion
     
 def doc_retrieval(question):
+    load_dotenv()
     pinecone.init(
     api_key=os.getenv("PINECONE_API_KEY"),
     environment=os.getenv("PINECONE_ENVIRONMENT")
