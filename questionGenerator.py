@@ -14,7 +14,7 @@ from pymongo import MongoClient
 import pinecone
 from langchain.vectorstores import Pinecone
 from langchain.evaluation import QAEvalChain, ContextQAEvalChain
-from googletrans import Translator, constants
+from python_translator import Translator
 from dotenv import load_dotenv
 import os, random
 
