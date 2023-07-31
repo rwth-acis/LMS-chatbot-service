@@ -63,7 +63,7 @@ def random_question_tool(input):
         
         # translate the question into german
         translator = Translator()
-        translation = translator.translate(question, dest='de').text
+        translation = str(translator.translate(question, "german", "english"))
         return translation
     else:
         question_generator()
@@ -76,7 +76,7 @@ def random_question_tool(input):
         
         # translate the question into german
         translator = Translator()
-        translation = translator.translate(question, dest='de').text
+        translation = str(translator.translate(question, "german", "english"))
         return translation
         
 def answer_comparison(input):
