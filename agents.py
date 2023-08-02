@@ -4,7 +4,7 @@ from langchain.llms import OpenAI
 from langchain.agents.tools import Tool
 from langchain import LLMMathChain, LLMChain, PromptTemplate
 from langchain.agents import AgentType, Agent, AgentExecutor, ConversationalChatAgent, BaseMultiActionAgent, AgentOutputParser, initialize_agent
-from indexRetriever import answer_retriever
+from indexRetriever import answer_retriever, question_generator
 from questionGenerator import random_question_tool, answer_comparison
 from factchecker import fact_check
 from dotenv import load_dotenv
@@ -18,6 +18,8 @@ def generate_agent007(memory):
     #     description="Rufe die Funktion auf, um die Antwort des Studierenden auf die Frage des Tutors mit der Antwort des Tutors zu vergleichen und um mitzuteilen, ob die Antwort korrekt war. Der Input sollte in json-Format sein mit question: und answer: als key-values.",
     #     return_direct=True,
     # )
+    generate_question = question_generator()
+    
     answer_lecture_question = Tool(
         name="answer lecture Question",
         func=answer_retrieve.run,
@@ -30,10 +32,17 @@ def generate_agent007(memory):
         description="Rufe die Funktion auf, um eine zufällige Frage zu stellen, die ein Tutor stellen könnte. Übersetze sie aber davor ins Deutsche.",
         return_direct=True
     )
+    specific_question = Tool(
+        name="specific Question",
+        func=generate_question.run,
+        description="Rufe die Funktion auf, um eine Frage zu einem spezifischen Thema zu generieren. Übersetze sie aber davor ins Deutsche.",
+        return_direct=True,
+    )
     
     tools = [
         answer_lecture_question,
         tutor_question,
+        specific_question
         #answer_compare
     ]
     

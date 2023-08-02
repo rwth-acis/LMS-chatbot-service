@@ -109,3 +109,44 @@ def answer_retriever():
 
     return qa
 
+def question_generator():
+    pinecone.init(
+        api_key=os.getenv("PINECONE_API_KEY"),
+        environment=os.getenv("PINECONE_ENVIRONMENT")
+    )
+    
+    index = pinecone.Index(os.getenv("PINECONE_INDEX_NAME"))
+    
+    # initialize embedding model
+    embed = OpenAIEmbeddings(
+        model = "text-embedding-ada-002",
+        openai_api_key=os.getenv("OPENAI_API_KEY")
+    )
+
+    text_field = "text"
+    # connect to index
+    vector_store = Pinecone(index, embed.embed_query, text_field)
+    
+    prompt_template = """Als Tutor für die Datenbanken und Informationssysteme hilfst du den Studierenden bei Übungsaufgaben. 
+    Der Student wird die nach einer Übungsaufgabe zu einem speziellen Thema fragen.
+    Du generierst eine Frage, die sich auf das Thema bezieht. Die Frage sollte in deutscher Sprache sein.
+    
+    {context}
+
+    Input: {question}
+    """
+    TUTOR_PROMPT = PromptTemplate(
+        template=prompt_template, input_variables=["context", "question"]
+    )
+    
+    retriever = vector_store.as_retriever()
+
+    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, max_tokens=512)
+    qa = RetrievalQA.from_chain_type(
+        llm=llm, 
+        chain_type="stuff", 
+        retriever=retriever, 
+        chain_type_kwargs={"prompt": TUTOR_PROMPT},
+    )
+
+    return qa
