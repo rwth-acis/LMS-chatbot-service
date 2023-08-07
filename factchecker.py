@@ -1,7 +1,10 @@
 from langchain.llms import OpenAI
-from langchain.chains import LLMChain
+from langchain.chains import LLMChain, LLMSummarizationCheckerChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import SimpleSequentialChain, SequentialChain
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
 
 def fact_check(answer):
     llm = OpenAI(temperature=0)
@@ -29,5 +32,16 @@ def fact_check(answer):
 
     return overall_chain(dict)
 
-    
-    
+
+def checker_chain(answer):
+    load_dotenv()
+    client = MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
+    db = client["answer_checks"]
+    col = db["checks"]
+    llm = OpenAI(temperature=0)
+    checker_chain = LLMSummarizationCheckerChain.from_llm(llm, max_checks=3, verbose=True)
+    checks = checker_chain.run(answer)
+    dict = {"answer": answer, "checks": checks}
+    col.insert_one(dict)
+    print(checks)
+        
