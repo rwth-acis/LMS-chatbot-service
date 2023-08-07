@@ -1,10 +1,11 @@
 from flask import Flask, request, render_template
 from langchain.memory.chat_message_histories import MongoDBChatMessageHistory
 from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
-import os, uuid, pymongo, sys, subprocess
+import os, uuid, pymongo, sys, subprocess, asyncio, threading
 from langchain.callbacks import get_openai_callback
 from agents import generate_agent007
 from questionGenerator import question_generator
+from factchecker import checker_chain
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -17,10 +18,6 @@ myclient = MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
 mydb = myclient["chat_history"]
 mycol = mydb["message_store"]
 
-@app.route("/")
-def main():
-    return "nothing here"
-
 def set_mongodb(session_id):
     # session_id = str(uuid.uuid4())
     connection_string = os.getenv("MONGO_CONNECTION_STRING")
@@ -28,6 +25,10 @@ def set_mongodb(session_id):
         connection_string=connection_string, session_id=session_id
     )
     return message_history
+
+@app.route("/")
+def main():
+    return "nothing here"
 
 @app.route("/generateQuestions")
 def generateQuestions():
@@ -49,7 +50,7 @@ def chat():
     session_id = request.json.get('channel')
     message_history = set_mongodb(session_id)
     #memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True)
-    memory = ConversationBufferWindowMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True, k=10)
+    memory = ConversationBufferWindowMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True, k=4)
     with get_openai_callback() as cb:
         try: 
             agent = generate_agent007(memory)
@@ -57,6 +58,9 @@ def chat():
             dict_cb = vars(cb)
             dict_cb['Session_id'] = session_id
             mycol.insert_one(dict_cb)
-            return answer
+            print(user_input)
+            print(answer)
+            return str(answer)
         except Exception as err:
             return 'Exception occurred: ' + str(err)
+
