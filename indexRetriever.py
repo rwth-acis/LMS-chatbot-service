@@ -87,8 +87,8 @@ def answer_retriever():
     
     prompt_template = """As a tutor for the lecture databases and informationssystems, your goal is to provide accurate and helpful infomration about the lecture. 
     You should answer the user inquiries as best as possible based on the context and chat history provided and avoid making up answers. 
-    If you don't know the answer, simply state that you don'k know. Answer the question in german language.
-    
+    If you don't know the answer, simply state that you don'k know. Answer the question in german language. 
+     
     {context}
 
     Question: {question}
@@ -99,7 +99,7 @@ def answer_retriever():
     
     retriever = vector_store.as_retriever()
 
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, max_tokens=512)
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
     qa = RetrievalQA.from_chain_type(
         llm=llm, 
         chain_type="stuff", 
@@ -141,7 +141,7 @@ def question_generator():
     
     retriever = vector_store.as_retriever()
 
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, max_tokens=512)
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
     qa = RetrievalQA.from_chain_type(
         llm=llm, 
         chain_type="stuff", 
