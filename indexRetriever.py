@@ -1,19 +1,9 @@
 # functions to retrieve the documents and answer the questions
 import logging, sys, os
-from pinecone import Pinecone
-from langchain_openai import ChatOpenAI, OpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
+from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains.question_answering import load_qa_chain
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.docstore.document import Document
-from langchain.chains.summarize import load_summarize_chain
-from langchain_community.embeddings import OpenAIEmbeddings
-# from llama_index.vector_stores.pinecone import PineconeVectorStore
-from langchain_pinecone import PineconeVectorStore
-from dotenv import load_dotenv
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))

@@ -1,16 +1,10 @@
 import weaviate
 from langchain_openai import OpenAIEmbeddings
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext, set_global_service_context
-from llama_index.llms.openai import OpenAI
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
-import pdfminer
+from llama_index.core import SimpleDirectoryReader
 from langchain_weaviate.vectorstores import WeaviateVectorStore
-from unstructured.partition.pdf import partition_pdf
 from dotenv import load_dotenv
 from path import Path
-from typing import List, Iterator
-import os, json
+import os
 load_dotenv()
 
 weaviate_url = os.getenv("WEAVIATE_URL")
@@ -115,9 +109,7 @@ weaviate_client = weaviate.connect_to_local(
 def get_docs(prompt):
     embedding = OpenAIEmbeddings()
     weav = WeaviateVectorStore(client=weaviate_client, index_name ="MoodleBot", text_key="text", embedding=embedding)
-    # storage_context = StorageContext.from_defaults(vector_store=weav)
-    # vector_store = VectorStoreIndex.from_vector_store(vector_store=weav, storage_context=storage_context)
-
+    
     retriever = weav.as_retriever()
     docs = retriever.invoke(prompt)
     return docs
