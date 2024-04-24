@@ -28,67 +28,13 @@ def question_retrieval(input):
             subquestion.append(input[i])
     return subquestion
     
-def doc_retrieval(question):
-    load_dotenv()
-    pc = Pinecone(
-        api_key=os.environ.get("PINECONE_API_KEY")
-    )
-    
-    index = pc.Index(os.getenv("PINECONE_INDEX_NAME"))
-    
-    # initialize embedding model
-    embed = OpenAIEmbeddings(
-        model = "text-embedding-ada-002",
-        openai_api_key=os.getenv("OPENAI_API_KEY")
-    )
-
-    text_field = "text"
-    # connect to index
-    vector_store = PineconeVectorStore(index, embed)
-
-    answer = vector_store.similarity_search(question, k=5)
-    return answer
-
 def question_answer(question, doc):
     llm = ChatOpenAI(temperature=0.0, openai_api_key=os.getenv("OPENAI_API_KEY"))
     chain = load_qa_chain(llm, chain_type="stuff")
     
     return chain.run(input_documents=doc, question=question)
 
-def summarization(text):
-    text_splitter = CharacterTextSplitter()
-    texts = text_splitter.split_text(text)
-    
-    docs = [Document(page_content=t) for t in texts]
-    
-    llm = OpenAI(temperature=0)
-    chain = load_summarize_chain(llm, chain_type="map_reduce")
-    summary = chain.run(docs)
-    return summary
-
-def doc_retriever(prompt):
-    pc = Pinecone(
-        api_key=os.environ.get("PINECONE_API_KEY")
-    )
-    
-    index = pc.Index(os.getenv("PINECONE_INDEX_NAME"))
-    
-    # initialize embedding model
-    embed = OpenAIEmbeddings(
-        model = "text-embedding-ada-002",
-        openai_api_key=os.getenv("OPENAI_API_KEY")
-    )
-
-    # connect to index  
-    vector_store = PineconeVectorStore(index, embed)
-    
-    retriever = vector_store.as_retriever()
-    docs = retriever.invoke(prompt)
-    print(docs)
-    
-    return docs
-
-def answer_retriever(prompt):
+def answer_retriever():
 
     SYSTEM_TEMPLATE = """As a tutor for the lecture databases and informationssystems, your goal is to provide accurate and helpful infomration about the lecture. 
     You should answer the user inquiries as best as possible based on the context and chat history provided and avoid making up answers. 
@@ -98,9 +44,6 @@ def answer_retriever(prompt):
 
     Question: {prompt}
     """
-    # TUTOR_PROMPT = PromptTemplate(
-    #     template=prompt_template, input_variables=["context", "question"]
-    # )
     
     llm = ChatOpenAI(model_name="gpt-4", temperature=0.2)
     
@@ -115,16 +58,10 @@ def answer_retriever(prompt):
     )
 
     document_chain = create_stuff_documents_chain(llm, question_answering_prompt)
-    # qa = RetrievalQA.from_chain_type(
-    #     llm=llm, 
-    #     chain_type="stuff", 
-    #     retriever=retriever, 
-    #     chain_type_kwargs={"prompt": TUTOR_PROMPT},
-    # )
 
     return document_chain
 
-def question_generator(prompt):
+def question_generator():
     
     prompt_template = """Als Tutor für die Datenbanken und Informationssysteme hilfst du den Studierenden bei Übungsaufgaben. 
     Der Student wird die nach einer Übungsaufgabe zu einem speziellen Thema fragen.
@@ -134,9 +71,7 @@ def question_generator(prompt):
 
     Input: {prompt}
     """
-    # TUTOR_PROMPT = PromptTemplate(
-    #     template=prompt_template, input_variables=["context", "question"]
-    # )
+
     llm = ChatOpenAI(model_name="gpt-4", temperature=0.2)
     
     question_answering_prompt = ChatPromptTemplate.from_messages(
@@ -150,11 +85,6 @@ def question_generator(prompt):
     )
 
     llm = ChatOpenAI(model_name="gpt-4", temperature=0)
-    # qa = RetrievalQA.from_chain_type(
-    #     llm=llm, 
-    #     chain_type="stuff", 
-    #     retriever=retriever, 
-    #     chain_type_kwargs={"prompt": TUTOR_PROMPT},
-    # )
+
     document_chain = create_stuff_documents_chain(llm, question_answering_prompt)
     return document_chain
