@@ -8,7 +8,9 @@ trash/*
 kubernetes/*
 templates/*
 __pycache__/
+tests/*
 #ignroe all ... files
 .env
 secrets.ini
 kompose.exe
+weaviate-values.yaml
