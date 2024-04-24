@@ -15,7 +15,6 @@ client = weaviate.Client(
         password = os.getenv("WCS_PASSWORD")  
     ),
 )
-
 def create_vectordatabase():
     client.schema.delete_all()
     schemas = client.schema.get()
@@ -97,19 +96,24 @@ def create_vectordatabase():
     print(count)
     return
 
-weaviate_client = weaviate.connect_to_local(
-    host=os.getenv("WEAVIATE_POD"),
-    port=8080,
+weaviate_client = weaviate.connect_to_custom(
+    http_host=os.getenv("WEAVIATE_POD"),
+    http_port=8080,
+    http_secure=False,
+    grpc_host=os.getenv("WEAVIATE_GRPC"),
     grpc_port=50051,
+    grpc_secure=False,
     auth_credentials=weaviate.auth.AuthClientPassword(
         username = os.getenv("WCS_USERNAME"), 
         password = os.getenv("WCS_PASSWORD")  
     ),
 )
+
 def get_docs(prompt):
     embedding = OpenAIEmbeddings()
     weav = WeaviateVectorStore(client=weaviate_client, index_name ="MoodleBot", text_key="text", embedding=embedding)
     
     retriever = weav.as_retriever()
     docs = retriever.invoke(prompt)
+    
     return docs
