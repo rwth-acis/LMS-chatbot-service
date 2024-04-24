@@ -1,17 +1,15 @@
 # used to initialize the pinecone index and upload the documents to the pinecone index
 # the index is used to retrieve the documents and answer the questions
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from llama_index.embeddings import OpenAIEmbedding
-from langchain.chat_models import ChatOpenAI
-from llama_index import SimpleDirectoryReader, VectorStoreIndex, LLMPredictor, ServiceContext, StorageContext, download_loader, MockEmbedding, set_global_service_context
-from llama_index.vector_stores import PineconeVectorStore
-from llama_index.llms import OpenAI
-from llama_index.node_parser import SimpleNodeParser
-from llama_index.callbacks import CallbackManager, TokenCountingHandler
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, ServiceContext, StorageContext, set_global_service_context
+from llama_index.vector_stores.pinecone import PineconeVectorStore
+from llama_index.llms.openai import OpenAI
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 from pathlib import Path
 import tiktoken
-import pinecone
+from pinecone import Pinecone, ServerlessSpec
 import openai
 import logging
 import sys
@@ -25,14 +23,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 
-llm = OpenAI(model="gpt-3.5-turbo", temperature=0, max_tokens=256)
+llm = OpenAI(model="gpt-4", temperature=0, max_tokens=256)
 
 embed = OpenAIEmbedding(
     model="text-embedding-ada-002", 
     openai_api_key=os.getenv("OPENAI_API_KEY"))
 
 token_counter = TokenCountingHandler(
-    tokenizer=tiktoken.encoding_for_model("gpt-3.5-turbo").encode
+    tokenizer=tiktoken.encoding_for_model("gpt-4").encode
 )
 
 callback_manager = CallbackManager([token_counter])
@@ -47,21 +45,28 @@ set_global_service_context(
 
 index_name = os.getenv("PINECONE_INDEX_NAME")
 
-pinecone.init(
-    api_key=os.getenv("PINECONE_API_KEY"),
-    environment=os.getenv("PINECONE_ENVIRONMENT")
+# pinecone.init(
+#     api_key=os.getenv("PINECONE_API_KEY"),
+#     environment=os.getenv("PINECONE_ENVIRONMENT")
+# )
+pc = Pinecone(
+    api_key=os.environ.get("PINECONE_API_KEY")
 )
 
-if index_name not in pinecone.list_indexes():
-    pinecone.create_index(
+if index_name not in pc.list_indexes().names():
+    pc.create_index(
         name=index_name,
-        metric="dotproduct",
-        dimension=1536
+        dimension=1536,
+        metric='euclidean',
+        spec=ServerlessSpec(
+            cloud='aws',
+            region='us-east-1'
+        )
     )
 
 #index = pinecone.GRPCIndex(index_name)
 
-parser = SimpleNodeParser()
+parser = SentenceSplitter(chunk_size=1024, chunk_overlap=20)
 
 service_context = ServiceContext.from_defaults(
     llm=llm,
@@ -71,7 +76,7 @@ service_context = ServiceContext.from_defaults(
 )
 
 storage_context = StorageContext.from_defaults(
-    vector_store=PineconeVectorStore(pinecone.Index(index_name)),
+    vector_store=PineconeVectorStore(pc.Index(index_name)),
 )
 
 slides = SimpleDirectoryReader(os.getenv("SELECTED_FILES")).load_data()

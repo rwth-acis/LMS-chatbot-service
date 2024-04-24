@@ -6,7 +6,7 @@ ENV FILES_NEW=""
 ENV MONGO_CONNECTION_STRING="localhost:27017"
 ENV SELECTED_FILES="./src/documents_2023/pdfs"
 ENV SELECTED_EXERCISES="./src/documents_2023/notebooks"
-ENV PINECONE_INDEX_NAME="dbis-lecture-2023"
+ENV PINECONE_INDEX_NAME="dbis-ss24"
 
 RUN IFS=',' && for file in $FILES_NEW; do cp $file /app/src/documents_new; done
 

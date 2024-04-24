@@ -1,40 +1,68 @@
 # first attempts of custom agents
-from langchain.chat_models import ChatOpenAI
-from langchain.llms import OpenAI
+# from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAI
 from langchain.agents.tools import Tool
-from langchain import LLMMathChain, LLMChain, PromptTemplate
-from langchain.agents import AgentType, Agent, AgentExecutor, ConversationalChatAgent, BaseMultiActionAgent, AgentOutputParser, initialize_agent
-from indexRetriever import answer_retriever, question_generator
+from langchain_core.messages import HumanMessage
+# from langchain.chains.LLMMathChain import LLMMathChain, LLMChain, PromptTemplate
+from langchain.agents import AgentExecutor, ConversationalChatAgent
+from indexRetriever import answer_retriever, question_generator, doc_retrieval
 from questionGenerator import random_question_tool, answer_comparison
 from factchecker import fact_check
 from dotenv import load_dotenv
 
+def get_answer(prompt):
+    docs = doc_retrieval(prompt)
+    answer_retrieve = answer_retriever(prompt)
+    answer = answer_retrieve.invoke({        
+                            "context": docs,
+                            "prompt": prompt,
+                            "messages": [
+                                HumanMessage(content=prompt)
+                            ],
+                        })
+    
+    return str(answer)
+
+def get_question(prompt):
+    docs = doc_retrieval(prompt)
+    question_retriever = question_generator(prompt)
+    question = question_retriever.invoke({        
+                            "context": docs,
+                            "prompt": prompt,
+                            "messages": [
+                                HumanMessage(content=prompt)
+                            ],
+                        })
+    
+    return str(question)
+
 def generate_agent007(memory):
     
-    answer_retrieve = answer_retriever()
     # answer_compare = Tool.from_function(
     #     answer_comparison,
     #     name = "answer comparison",
     #     description="Rufe die Funktion auf, um die Antwort des Studierenden auf die Frage des Tutors mit der Antwort des Tutors zu vergleichen und um mitzuteilen, ob die Antwort korrekt war. Der Input sollte in json-Format sein mit question: und answer: als key-values.",
     #     return_direct=True,
     # )
-    generate_question = question_generator()
+    # generate_question = question_generator(prompt)
     
     answer_lecture_question = Tool(
         name="answer lecture Question",
-        func=answer_retrieve.run,
+        func=get_answer,
         description="Rufe die Funktion auf, um Fragen zur Vorlesung Datenbanken und Informationssysteme zu beantworten.",
         return_direct=True,        
     )
+    
     tutor_question = Tool.from_function(
         random_question_tool, 
         name="tutor Question", 
         description="Rufe die Funktion auf, um eine zufällige Frage zu stellen, die ein Tutor stellen könnte. Übersetze sie aber davor ins Deutsche.",
         return_direct=True
     )
+    
     specific_question = Tool(
         name="specific Question",
-        func=generate_question.run,
+        func=get_question,
         description="Rufe die Funktion auf, um eine Frage zu einem spezifischen Thema zu generieren. Übersetze sie aber davor ins Deutsche.",
         return_direct=True,
     )
@@ -96,7 +124,14 @@ def generate_agent007(memory):
 
     llm = ChatOpenAI(temperature=0, model="gpt-4")
     agent = ConversationalChatAgent.from_llm_and_tools(llm=llm, system_message=prefix, human_message=suffix, tools=tools, verbose=True)
-    agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=memory, handle_parsing_errors=True)
+    agent_chain = AgentExecutor.from_agent_and_tools(
+        agent=agent, 
+        tools=tools, 
+        verbose=True, 
+        memory=memory,
+        return_intermediate_steps=True, 
+        handle_parsing_errors=True,
+        max_execution_time=10)
 
     return agent_chain
 

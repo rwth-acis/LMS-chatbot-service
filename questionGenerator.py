@@ -3,17 +3,14 @@
 # The questions and answers are stored in a MongoDB database.
 # this will be especially used to question the students as a chatbot and test their knowledge.
 
-from langchain.llms import OpenAI
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-from llama_index import SimpleDirectoryReader
-from langchain.chat_models import ChatOpenAI
+from llama_index.core import SimpleDirectoryReader
+from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import QAGenerationChain
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 from pymongo import MongoClient
 import pinecone
-from langchain.vectorstores import Pinecone
-from langchain.evaluation import QAEvalChain, ContextQAEvalChain
+from langchain_community.vectorstores import Pinecone
+from langchain.evaluation import ContextQAEvalChain
 from python_translator import Translator
 from dotenv import load_dotenv
 import os, random

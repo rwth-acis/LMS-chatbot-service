@@ -1,8 +1,9 @@
 from flask import Flask, request, render_template
-from langchain.memory.chat_message_histories import MongoDBChatMessageHistory
-from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
-import os, uuid, pymongo, sys, subprocess, asyncio, threading
-from langchain.callbacks import get_openai_callback
+from langchain_mongodb import MongoDBChatMessageHistory
+# from langchain_community.chat_message_histories import MongoDBChatMessageHistory
+from langchain.memory import ConversationBufferWindowMemory
+import os
+from langchain_community.callbacks import get_openai_callback
 from agents import generate_agent007
 from questionGenerator import question_generator
 from factchecker import checker_chain
@@ -17,6 +18,7 @@ load_dotenv()
 myclient = MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
 mydb = myclient["chat_history"]
 mycol = mydb["message_store"]
+costcol = mydb["costs"]
 
 def set_mongodb(session_id):
     # session_id = str(uuid.uuid4())
@@ -50,17 +52,26 @@ def chat():
     session_id = request.json.get('channel')
     message_history = set_mongodb(session_id)
     #memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True)
-    memory = ConversationBufferWindowMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True, k=4)
+    memory = ConversationBufferWindowMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True, output_key='output', k=4)
     with get_openai_callback() as cb:
         try: 
             agent = generate_agent007(memory)
-            answer = agent.run(user_input)
-            dict_cb = vars(cb)
-            dict_cb['Session_id'] = session_id
-            mycol.insert_one(dict_cb)
-            print(user_input)
-            print(answer)
-            return str(answer)
+            answer = agent(user_input)
+            print(answer['output'])
+            print(f"Total Tokens: {cb.total_tokens}")
+            print(f"Prompt Tokens: {cb.prompt_tokens}")
+            print(f"Completion Tokens: {cb.completion_tokens}")
+            print(f"Total Cost (USD): ${cb.total_cost}")
+            print(f"Session_id: {session_id}")
+            costs = dict()
+            costs["Total Tokens"] = cb.total_tokens
+            costs["Prompt Tokens"] = cb.prompt_tokens
+            costs["Completion Tokens"] = cb.completion_tokens
+            costs["Total Cost (USD)"] = cb.total_cost
+            costs["session_id"] = session_id
+            costcol.insert_one(costs)
+            
+            return answer['output']
         except Exception as err:
             return 'Exception occurred: ' + str(err)
 

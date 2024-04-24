@@ -1,7 +1,6 @@
-from langchain.llms import OpenAI
-from langchain.chains import LLMChain, LLMSummarizationCheckerChain
-from langchain.prompts import PromptTemplate
-from langchain.chains import SimpleSequentialChain, SequentialChain
+from langchain_community.llms import OpenAI
+from langchain.chains import LLMChain, LLMSummarizationCheckerChain, SequentialChain
+from langchain_core.prompts import PromptTemplate
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
