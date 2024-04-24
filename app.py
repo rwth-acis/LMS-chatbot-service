@@ -51,27 +51,24 @@ def chat():
     user_input = request.json.get('msg')
     session_id = request.json.get('channel')
     message_history = set_mongodb(session_id)
-    #memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True)
     memory = ConversationBufferWindowMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True, output_key='output', k=4)
     with get_openai_callback() as cb:
-        try: 
-            agent = generate_agent007(memory)
-            answer = agent(user_input)
-            print(answer['output'])
-            print(f"Total Tokens: {cb.total_tokens}")
-            print(f"Prompt Tokens: {cb.prompt_tokens}")
-            print(f"Completion Tokens: {cb.completion_tokens}")
-            print(f"Total Cost (USD): ${cb.total_cost}")
-            print(f"Session_id: {session_id}")
-            costs = dict()
-            costs["Total Tokens"] = cb.total_tokens
-            costs["Prompt Tokens"] = cb.prompt_tokens
-            costs["Completion Tokens"] = cb.completion_tokens
-            costs["Total Cost (USD)"] = cb.total_cost
-            costs["session_id"] = session_id
-            costcol.insert_one(costs)
+        agent = generate_agent007(memory)
+        answer = agent(user_input)
+        print(answer['output'])
+        print(f"Total Tokens: {cb.total_tokens}")
+        print(f"Prompt Tokens: {cb.prompt_tokens}")
+        print(f"Completion Tokens: {cb.completion_tokens}")
+        print(f"Total Cost (USD): ${cb.total_cost}")
+        print(f"Session_id: {session_id}")
+        costs = dict()
+        costs["Total Tokens"] = cb.total_tokens
+        costs["Prompt Tokens"] = cb.prompt_tokens
+        costs["Completion Tokens"] = cb.completion_tokens
+        costs["Total Cost (USD)"] = cb.total_cost
+        costs["session_id"] = session_id
+        costcol.insert_one(costs)
             
-            return answer['output']
-        except Exception as err:
-            return 'Exception occurred: ' + str(err)
+    return answer['output']
+
 

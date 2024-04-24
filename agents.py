@@ -1,18 +1,16 @@
-# first attempts of custom agents
-# from langchain_community.chat_models import ChatOpenAI
-from langchain_openai import ChatOpenAI, OpenAI
+from langchain_openai import ChatOpenAI
 from langchain.agents.tools import Tool
 from langchain_core.messages import HumanMessage
 # from langchain.chains.LLMMathChain import LLMMathChain, LLMChain, PromptTemplate
 from langchain.agents import AgentExecutor, ConversationalChatAgent
-from indexRetriever import answer_retriever, question_generator, doc_retrieval
-from questionGenerator import random_question_tool, answer_comparison
+from indexRetriever import answer_retriever, question_generator
+from weaviateRetriever import get_docs
+from questionGenerator import random_question_tool
 from factchecker import fact_check
-from dotenv import load_dotenv
 
 def get_answer(prompt):
-    docs = doc_retrieval(prompt)
-    answer_retrieve = answer_retriever(prompt)
+    docs = get_docs(prompt)
+    answer_retrieve = answer_retriever()
     answer = answer_retrieve.invoke({        
                             "context": docs,
                             "prompt": prompt,
@@ -20,12 +18,11 @@ def get_answer(prompt):
                                 HumanMessage(content=prompt)
                             ],
                         })
-    
     return str(answer)
 
 def get_question(prompt):
-    docs = doc_retrieval(prompt)
-    question_retriever = question_generator(prompt)
+    docs = get_docs(prompt)
+    question_retriever = question_generator()
     question = question_retriever.invoke({        
                             "context": docs,
                             "prompt": prompt,
@@ -131,7 +128,7 @@ def generate_agent007(memory):
         memory=memory,
         return_intermediate_steps=True, 
         handle_parsing_errors=True,
-        max_execution_time=10)
+    )
 
     return agent_chain
 
