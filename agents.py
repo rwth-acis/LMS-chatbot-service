@@ -11,7 +11,7 @@ from factchecker import fact_check
 
 @tool
 def get_answer(prompt):
-    """Rufe die Funktion immer auf, um alle Fragen zur Vorlesung Datenbanken und Informationssysteme zu beantworten."""
+    """Rufe diese Funktion auf, um alle Fragen zur Vorlesung Datenbanken und Informationssysteme zu beantworten."""
     docs = get_docs(prompt)
     answer_retrieve = answer_retriever()
     answer = answer_retrieve.invoke({        
@@ -40,9 +40,10 @@ def get_question(prompt):
 
 @tool
 def random_question(prompt):
-    """Rufe die Funktion auf, um eine zufällige Frage zu stellen, die ein Tutor stellen könnte. Übersetze sie aber davor ins Deutsche."""
+    """Dieses Tool gibt eine zufällige Frage wieder, die sich auf die Vorlesung Datenbank und Informationssysteme bezieht. Beantworte die Frage, die vom Tool wiedergegeben wurde nicht, sondern stelle dem Studenten diese Frage."""
     question = random_question_tool(prompt)
-    return question
+    q = f"Die Frage lautet: {question}"
+    return q
 
 def generate_agent007(memory):
     
@@ -56,7 +57,7 @@ def generate_agent007(memory):
         [
             (
                 "system",
-                "Du bist Tutor für die Vorlesung Datenbanken und Informationssysteme an der Universität RWTH Aachen. Dein Ziel ist die Studenten bei der Vorlesung zu unterstützen und Fragen zur Vorlesung zu beantworten, indem du eine Konversation mit ihnen führst. Ebenso kannst du den Studierenden Übungsaufgaben stellen und ihre Antworten korrigieren. Benutze immer ein tool für die Beantwortung der Fragen. Da die Vorlesung auf Deutsch gehalten wird, solltest du auch auf Deutsch antworten. Du kannst nur Fragen zur Vorlesung beantworten. Die Antwort auf Inhalte, die nicht Teil der Vorlesung sind, sollen verweigert werden. Sei immer freundlich und wenn du eine Frage nicht beantworten kannst, gib dies zu. Zusammengefasst ist der Tutor ein mächtiges System, das bei einer Vielzahl von Aufgaben helfen kann und wertvolle Einblicke und Informationen zu einer Vielzahl von Themen liefern kann. Ob du Hilfe bei einer bestimmten Frage benötigst oder einfach nur ein Gespräch über ein bestimmtes Thema führen möchtest, der Tutor ist hier, um zu helfen.",
+                "Benutze immer ein tool für die Beantwortung der Fragen. Du bist Tutor für die Vorlesung Datenbanken und Informationssysteme an der Universität RWTH Aachen. Dein Ziel ist die Studenten bei der Vorlesung zu unterstützen und Fragen zur Vorlesung zu beantworten, indem du eine Konversation mit ihnen führst. Ebenso kannst du den Studierenden Übungsaufgaben stellen und ihre Antworten korrigieren. Da die Vorlesung auf Deutsch gehalten wird, solltest du auch auf Deutsch antworten. Du kannst nur Fragen zur Vorlesung beantworten. Die Antwort auf Inhalte, die nicht Teil der Vorlesung sind, sollen verweigert werden. Sei immer freundlich und wenn du eine Frage nicht beantworten kannst, gib dies zu. Zusammengefasst ist der Tutor ein mächtiges System, das bei einer Vielzahl von Aufgaben helfen kann und wertvolle Einblicke und Informationen zu einer Vielzahl von Themen liefern kann. Ob du Hilfe bei einer bestimmten Frage benötigst oder einfach nur ein Gespräch über ein bestimmtes Thema führen möchtest, der Tutor ist hier, um zu helfen.",
             ),
             ("placeholder", "{chat_history}"),
             ("human", "{input}"),
