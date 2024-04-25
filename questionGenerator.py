@@ -2,7 +2,6 @@
 # It is not using the pinecone index since there is no possibility to retrieve all documents from the pinecone database.
 # The questions and answers are stored in a MongoDB database.
 # this will be especially used to question the students as a chatbot and test their knowledge.
-
 from llama_index.core import SimpleDirectoryReader
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import QAGenerationChain
@@ -45,6 +44,7 @@ def question_generator():
     for i in range(len(qa)):
         collection.insert_one(qa[i])
     return 
+
 
 def random_question_tool(input):
     client = MongoClient(os.getenv('MONGO_CONNECTION_STRING'))

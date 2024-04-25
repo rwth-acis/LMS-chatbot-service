@@ -53,8 +53,11 @@ def chat():
     message_history = set_mongodb(session_id)
     memory = ConversationBufferWindowMemory(memory_key="chat_history", chat_memory=message_history, return_messages=True, output_key='output', k=4)
     with get_openai_callback() as cb:
+        input = dict()
+        input["input"] = user_input
+        input["chat_history"] = memory
         agent = generate_agent007(memory)
-        answer = agent(user_input)
+        answer = agent.invoke(input)
         print(answer['output'])
         print(f"Total Tokens: {cb.total_tokens}")
         print(f"Prompt Tokens: {cb.prompt_tokens}")
