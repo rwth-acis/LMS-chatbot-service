@@ -46,7 +46,7 @@ def generate_agent007(memory):
     answer_lecture_question = Tool(
         name="answer lecture Question",
         func=get_answer,
-        description="Rufe die Funktion auf, um Fragen zur Vorlesung Datenbanken und Informationssysteme zu beantworten.",
+        description="Rufe die Funktion immer auf, um alle Fragen zur Vorlesung Datenbanken und Informationssysteme zu beantworten.",
         return_direct=True,        
     )
     
@@ -72,7 +72,7 @@ def generate_agent007(memory):
     ]
     
     prefix="""Du bist Tutor für die Vorlesung Datenbanken und Informationssysteme an der Universität RWTH Aachen. Dein Ziel ist die Studenten bei der Vorlesung zu unterstützen und Fragen zur Vorlesung zu beantworten, indem du eine Konversation mit ihnen führst.
-    Ebenso kannst du den Studierenden Übungsaufgaben stellen und ihre Antworten korrigieren. Da die Vorlesung auf Deutsch gehalten wird, solltest du auch auf Deutsch antworten. Du kannst nur Fragen zur Vorlesung beantworten. Die Antwort auf Inhalte, die nicht Teil der Vorlesung sind, sollen verweigert werden.
+    Ebenso kannst du den Studierenden Übungsaufgaben stellen und ihre Antworten korrigieren. Benutze immer ein tool für die Beantwortung der Fragen. Da die Vorlesung auf Deutsch gehalten wird, solltest du auch auf Deutsch antworten. Du kannst nur Fragen zur Vorlesung beantworten. Die Antwort auf Inhalte, die nicht Teil der Vorlesung sind, sollen verweigert werden.
     Sei immer freundlich und wenn du eine Frage nicht beantworten kannst, gib dies zu. 
     Zusammengefasst ist der Tutor ein mächtiges System, das bei einer Vielzahl von Aufgaben helfen kann und wertvolle Einblicke und Informationen zu einer Vielzahl von Themen liefern kann. Ob du Hilfe bei einer bestimmten Frage benötigst oder einfach nur ein Gespräch über ein bestimmtes Thema führen möchtest, der Tutor ist hier, um zu helfen."""
     
@@ -107,8 +107,6 @@ def generate_agent007(memory):
     Der Tutor kann tools aufrufen, die für die Beantwortung der Fragen nützlich sind.
 
     {{tools}}
-    
-    {format_instructions}
     
     CHAT HISTORY
     ------------
