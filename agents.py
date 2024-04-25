@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain.agents.tools import Tool
 from langchain_core.messages import HumanMessage
 # from langchain.chains.LLMMathChain import LLMMathChain, LLMChain, PromptTemplate
-from langchain.agents import AgentExecutor, ConversationalChatAgent
+from langchain.agents import AgentExecutor, ConversationalChatAgent, create_tool_calling_agent
 from indexRetriever import answer_retriever, question_generator
 from weaviateRetriever import get_docs
 from questionGenerator import random_question_tool
@@ -111,15 +111,18 @@ def generate_agent007(memory):
     CHAT HISTORY
     ------------
     Der Tutor hat auch Zugriff auf den vorherigen Chat-Verlauf, um noch besser auf die Fragen der Studierenden eingehen zu können.
-        
+    {{chat_history}}
+    
     USER'S INPUT
     --------------------
     Hier ist die Eingabe vom User:
-    {{{{input}}}}"""
+    {{{{input}}}}
+    {{agent_scratchpad}}"""
 
     llm = ChatOpenAI(temperature=0, model="gpt-4")
-    agent = ConversationalChatAgent.from_llm_and_tools(llm=llm, system_message=prefix, human_message=suffix, tools=tools, verbose=True)
-    agent_chain = AgentExecutor.from_agent_and_tools(
+    agent = create_tool_calling_agent(llm=llm, tools=tools, prompt=prefix+suffix)
+    # agent = ConversationalChatAgent.from_llm_and_tools(llm=llm, system_message=prefix, human_message=suffix, tools=tools, verbose=True)
+    agent_chain = AgentExecutor(
         agent=agent, 
         tools=tools, 
         verbose=True, 
